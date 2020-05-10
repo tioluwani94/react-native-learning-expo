@@ -5,6 +5,7 @@ import { FlatList } from 'react-native-gesture-handler';
 
 const Home = ({ navigation }) => {
   const [colorPalettes, setColorPalettes] = React.useState([]);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const handlePress = ({ colors, paletteName }) => {
     navigation.navigate('ColorPalette', {
@@ -16,12 +17,7 @@ const Home = ({ navigation }) => {
   const fetchColorPalettes = React.useCallback(async () => {
     try {
       const response = await fetch(
-        ' https://color-palette-api.kadikraman.now.sh/palettes',
-        {
-          headers: {
-            Accept: 'application/json',
-          },
-        }
+        ' https://color-palette-api.kadikraman.now.sh/palettes'
       );
       if (response.ok) {
         const data = await response.json();
@@ -32,6 +28,14 @@ const Home = ({ navigation }) => {
       console.log(error);
     }
   }, []);
+
+  const handleRefresh = React.useCallback(async () => {
+    setIsRefreshing(true);
+    await fetchColorPalettes();
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 1000);
+  });
 
   React.useEffect(() => {
     fetchColorPalettes();
@@ -45,6 +49,8 @@ const Home = ({ navigation }) => {
         renderItem={({ item }) => (
           <ColorsPreview palette={item} handlePress={handlePress} />
         )}
+        onRefresh={handleRefresh}
+        refreshing={isRefreshing}
       />
     </View>
   );
