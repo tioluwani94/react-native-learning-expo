@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, RefreshControl } from 'react-native';
 import ColorsPreview from '../components/ColorsPreview';
 import { FlatList } from 'react-native-gesture-handler';
 
@@ -17,11 +17,10 @@ const Home = ({ navigation }) => {
   const fetchColorPalettes = React.useCallback(async () => {
     try {
       const response = await fetch(
-        ' https://color-palette-api.kadikraman.now.sh/palettes'
+        'https://color-palette-api.kadikraman.now.sh/palettes'
       );
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
         setColorPalettes(data);
       }
     } catch (error) {
@@ -49,8 +48,9 @@ const Home = ({ navigation }) => {
         renderItem={({ item }) => (
           <ColorsPreview palette={item} handlePress={handlePress} />
         )}
-        onRefresh={handleRefresh}
-        refreshing={isRefreshing}
+        refreshControl={
+          <RefreshControl onRefresh={handleRefresh} refreshing={isRefreshing} />
+        }
       />
     </View>
   );
