@@ -1,9 +1,15 @@
 import React from 'react';
-import { StyleSheet, View, RefreshControl } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  RefreshControl,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import ColorsPreview from '../components/ColorsPreview';
-import { FlatList } from 'react-native-gesture-handler';
 
-const Home = ({ navigation }) => {
+const Home = ({ route, navigation }) => {
   const [colorPalettes, setColorPalettes] = React.useState([]);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
@@ -36,15 +42,32 @@ const Home = ({ navigation }) => {
     }, 1000);
   });
 
+  const handleAddNewPaletteClick = () => {
+    navigation.navigate('AddNewPalette');
+  };
+
   React.useEffect(() => {
     fetchColorPalettes();
   }, []);
 
+  React.useEffect(() => {
+    if (route.params && route.params.colors && route.params.paletteName) {
+      const { colors, paletteName } = route.params;
+      setColorPalettes([{ colors, paletteName }, ...colorPalettes]);
+    }
+  }, [route.params]);
+
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.addColorBtn}
+        onPress={handleAddNewPaletteClick}
+      >
+        <Text style={styles.addColorBtnText}>Add a color scheme</Text>
+      </TouchableOpacity>
       <FlatList
         data={colorPalettes}
-        keyExtractor={(item) => item.paletteName}
+        keyExtractor={(item, index) => `${item.paletteName}-${index}`}
         renderItem={({ item }) => (
           <ColorsPreview palette={item} handlePress={handlePress} />
         )}
@@ -61,6 +84,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     backgroundColor: 'white',
+  },
+  addColorBtn: {
+    marginBottom: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+  },
+  addColorBtnText: {
+    fontSize: 24,
+    color: 'green',
+    fontWeight: 'bold',
   },
 });
 
